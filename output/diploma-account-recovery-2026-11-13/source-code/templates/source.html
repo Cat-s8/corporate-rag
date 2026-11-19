@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block body %}
+<p class="eyebrow">Источник ответа</p>
+<h1>{{ doc.title }}</h1>
+<p class="muted">
+  {% if source.document_page is not none %}Страница документа {{ source.document_page }} · {% endif %}
+  {% if source.pdf_page %}Страница PDF {{ source.pdf_page }} · {% endif %}
+  Фрагмент {{ source.id }}
+</p>
+<div class="source-actions">
+  <a class="button secondary" href="{{ url_for('document',did=doc.id) }}">Все фрагменты документа</a>
+  {% if pdf_available %}
+  <a class="button" href="{{ url_for('original_pdf',did=doc.id) }}#page={{ source.pdf_page or 1 }}" target="_blank" rel="noopener">Открыть оригинальный PDF</a>
+  {% endif %}
+</div>
+<section class="card">
+  <h2>Найденный отрывок</h2>
+  {% if source.section %}<p class="muted">{{ source.section }}{% if source.point %} · {{ source.point }}{% endif %}</p>{% endif %}
+  <p class="answer">{{ source.text }}</p>
+</section>
+{% if preview_available %}
+<section class="card pdf-page-card">
+  <h2>Страница оригинального PDF</h2>
+  <p class="muted small">Показана страница с найденным отрывком в исходном оформлении.</p>
+  <a href="{{ url_for('original_pdf',did=doc.id) }}#page={{ source.pdf_page }}" target="_blank" rel="noopener" aria-label="Открыть оригинальный PDF на странице {{ source.pdf_page }}">
+    <img class="pdf-page-image" src="{{ url_for('source_image',did=doc.id,cid=source.id) }}" alt="Оригинальная страница PDF {{ source.pdf_page }} документа {{ doc.title }}">
+  </a>
+</section>
+{% elif not pdf_available %}
+<div class="notice">Оригинальный PDF не найден в хранилище. Доступен сохранённый текст отрывка.</div>
+{% else %}
+<div class="notice">Не удалось определить или отобразить страницу отрывка. Можно открыть оригинальный PDF целиком.</div>
+{% endif %}
+{% endblock %}

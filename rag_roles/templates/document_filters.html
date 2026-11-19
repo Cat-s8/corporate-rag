@@ -1,0 +1,19 @@
+<section class="card">
+  <form method="get" action="{{ url_for('documents') }}">
+    <div class="grid four">
+      <label>Группа документов<select name="group">{% set selected_group=document_section %}{% include 'group_options.html' %}</select></label>
+      <label>Название документа<input type="search" name="q" value="{{ document_query }}" placeholder="Введите часть названия"></label>
+      <label>Кому доступен<select name="role">
+        <option value="">Все роли</option>
+        {% for key,label in roles.items() %}<option value="{{ key }}" {% if document_role==key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        <option value="admin_only" {% if document_role=='admin_only' %}selected{% endif %}>Только администратору</option>
+      </select></label>
+      <label>Состояние<select name="status">
+        <option value="">Все состояния</option>
+        {% for value in ['Готов','Ожидает индексации'] %}<option value="{{ value }}" {% if document_status==value %}selected{% endif %}>{{ value }}</option>{% endfor %}
+      </select></label>
+    </div>
+    <div class="source-actions"><button>Применить</button><a class="button secondary" href="{{ url_for('documents') }}">Сбросить</a></div>
+  </form>
+  <p class="small muted" role="status">Найдено: {{ rows|length }} из {{ document_total }} доступных документов</p>
+</section>

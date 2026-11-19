@@ -1,0 +1,9 @@
+<input type="hidden" name="access_mode" value="roles">
+<fieldset class="access-options">
+  <legend>Кому доступен документ</legend>
+  <p class="muted">Отметьте роли, которым разрешены поиск и просмотр этого документа.</p>
+  {% for key,label in roles.items() if key!='RAG_ADMIN' %}
+  <label class="check"><input type="checkbox" name="roles" value="{{ key }}" {% if key in selected_roles %}checked{% endif %}>{{ label }}</label>
+  {% endfor %}
+  <p class="small muted">Администратору доступен всегда. Если ничего не отмечено, документ виден только администратору.</p>
+</fieldset>

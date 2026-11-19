@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block body %}
+<link rel="stylesheet" href="{{ url_for('static',filename='users.css') }}">
+<p class="eyebrow">Администратор</p>
+<h1>История запросов пользователей</h1>
+<p class="muted">До 500 последних запросов. Время UTC. История удалённых учётных записей сохраняется. Ответы модели не сохраняются.</p>
+<a href="/users">← Управление пользователями</a>
+<section class="card">
+  <form method="get" action="/users/history" class="account-history-filter">
+    <label for="history-user">Пользователь<select name="user_id" id="history-user">
+      <option value="">Все пользователи</option>
+      {% for person in people %}<option value="{{ person.id }}" {% if selected==person.id|string %}selected{% endif %}>{{ person.name }} · {{ person.login }}{% if person.deleted_at %} · удалён{% endif %}</option>{% endfor %}
+    </select></label>
+    <button>Применить</button>
+    {% if selected %}<a class="button secondary" href="/users/history">Сбросить</a>{% endif %}
+  </form>
+</section>
+<section class="card table-wrap">
+  <table class="account-history-table">
+    <thead><tr><th>Дата UTC</th><th>Пользователь</th><th>Запрос</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="account-history-time">{{ r.at }}</td>
+        <td><strong>{{ r.name }}</strong><small>{{ r.login }} · #{{ r.uid }}</small>{% if r.deleted_at %}<span class="badge account-disabled">Учётная запись удалена</span>{% endif %}</td>
+        <td class="account-history-question">{{ r.question }}</td>
+      </tr>
+      {% else %}<tr><td colspan="3">{% if selected %}У этого пользователя пока нет запросов.{% else %}Запросов пока нет.{% endif %}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

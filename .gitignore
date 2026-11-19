@@ -46,3 +46,7 @@ retrieval_evaluation*.txt
 # Keys / certificates
 *.key
 *.pem
+
+# Local cleanup backups and test caches
+.archive/
+.pytest_cache/

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="login-card">
+  <div class="logo">▦</div><p class="eyebrow">КАЗНАЧЕЙСТВО / АДМИНИСТРАТОР</p>
+  <h1>Вход администратора</h1>
+  <p class="muted">Шаг 1 из 2 · Логин и пароль</p>
+  <p>На следующем шаге потребуется одноразовый код, созданный локальной командой на основном компьютере.</p>
+  <form method="post" action="{{ url_for('admin_login') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Логин<input name="login" required autocomplete="username" maxlength="40"></label>
+    <label>Пароль<input name="password" type="password" required autocomplete="current-password" maxlength="256"></label>
+    <button>Продолжить →</button>
+  </form>
+  <p><a href="{{ url_for('login') }}">Вход для пользователей</a></p>
+</div>
+{% endblock %}

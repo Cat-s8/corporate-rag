@@ -5,8 +5,9 @@ import re
 import pymupdf
 
 
-PDF_DIR = Path("data/raw_pdf")
-OUTPUT_FILE = Path("data/processed/chunks_pdf.json")
+ROOT = Path(__file__).resolve().parents[1]
+PDF_DIR = ROOT / "data/raw_pdf"
+OUTPUT_FILE = ROOT / "data/processed/chunks_pdf.json"
 
 CHUNK_SIZE = 1800
 CHUNK_OVERLAP = 250

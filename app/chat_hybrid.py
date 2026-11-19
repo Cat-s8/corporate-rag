@@ -4,19 +4,17 @@ import time
 
 from llama_cpp import Llama
 
-from search_hybrid import (
-    load_data,
-    hybrid_search,
-)
+try:
+    from .search_hybrid import load_data, hybrid_search
+except ImportError:
+    from search_hybrid import load_data, hybrid_search
 
 
 # ============================================================
 # НАСТРОЙКИ
 # ============================================================
 
-MODEL_PATH = Path(
-    "models/Qwen3-8B-Q4_K_M.gguf"
-)
+MODEL_PATH = Path(__file__).resolve().parents[1] / "models/Qwen3-8B-Q4_K_M.gguf"
 
 TOP_K = 5
 
@@ -126,34 +124,7 @@ def build_context(results):
 # ГЕНЕРАЦИЯ ОТВЕТА
 # ============================================================
 
-def generate_answer(
-    llm,
-    question,
-    context,
-):
-    """
-    Генерирует ответ Qwen3.
-
-    Возвращает:
-
-    answer
-        Финальный текст без <think>
-        и без служебной строки SOURCES.
-
-    used_source_numbers
-        Номера источников,
-        которые модель указала как использованные.
-
-    sources_declared
-        True:
-            модель явно вернула [SOURCES: ...]
-            или [SOURCES: none]
-
-        False:
-            модель вообще забыла вернуть
-            служебную строку.
-    """
-
+def build_messages(question, context):
     system_prompt = """
 Ты корпоративный AI-ассистент,
 работающий с документацией организации.
@@ -282,23 +253,49 @@ def generate_answer(
 [SOURCES: ...]
 """
 
+    return [{"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}]
+
+
+def generate_answer(
+    llm,
+    question,
+    context,
+    temperature=0.2,
+):
+    """
+    Генерирует ответ Qwen3.
+
+    Возвращает:
+
+    answer
+        Финальный текст без <think>
+        и без служебной строки SOURCES.
+
+    used_source_numbers
+        Номера источников,
+        которые модель указала как использованные.
+
+    sources_declared
+        True:
+            модель явно вернула [SOURCES: ...]
+            или [SOURCES: none]
+
+        False:
+            модель вообще забыла вернуть
+            служебную строку.
+    """
+
+    messages = build_messages(question, context)
+
     start_time = time.time()
 
     response = llm.create_chat_completion(
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt,
-            },
-            {
-                "role": "user",
-                "content": user_prompt,
-            },
-        ],
+        messages=messages,
 
         max_tokens=300,
 
-        temperature=0.2,
+        temperature=temperature,
 
         top_p=0.8,
 

@@ -1,0 +1,72 @@
+<link rel="stylesheet" href="{{ url_for('static',filename='users.css') }}">
+<h1>Управление пользователями</h1>
+<p class="muted">Управляйте доступом, паролями и учётными записями пользователей.</p>
+<section class="card">
+  <h2>Новая учётная запись</h2>
+  <form method="post" action="/users">
+    {{ token() }}<input type="hidden" name="action" value="create">
+    <div class="grid three">
+      <label>Логин<input name="login" required pattern="[a-zA-Z0-9_.-]{3,40}" maxlength="40" placeholder="ivanov" autocomplete="off"></label>
+      <label>ФИО<input name="name" required maxlength="120" autocomplete="off"></label>
+      <label>Пароль<input name="password" type="password" required minlength="12" autocomplete="new-password"></label>
+    </div>
+    <label class="account-create-role">Роль<select name="role" required>{% for key,label in roles.items() if key!='RAG_ADMIN' %}<option value="{{ key }}">{{ label }}</option>{% endfor %}</select></label>
+    <button>+ Создать пользователя</button>
+  </form>
+</section>
+<section class="card accounts-section">
+  <div class="section-head accounts-heading">
+    <h2>Учётные записи</h2>
+    <a class="button secondary" href="/users/history">История запросов пользователей</a>
+  </div>
+  <div class="accounts-list">
+  {% for r in rows %}
+    <article class="account-card" aria-labelledby="account-name-{{ r.id }}">
+      <div class="account-heading">
+        <div class="account-identity"><strong id="account-name-{{ r.id }}">{{ r.name }}</strong><small>{{ r.login }} · #{{ r.id }}</small></div>
+        <div class="account-badges">
+          {% if r.id==user.id %}<span class="badge">Ваша учётная запись</span>{% endif %}
+          {% if r.role=='RAG_ADMIN' %}<span class="badge">Администратор</span>{% endif %}
+          {% if not r.active %}<span class="badge account-disabled">Доступ отключён</span>{% endif %}
+        </div>
+      </div>
+      {% if r.id!=user.id %}
+      <form method="post" action="/users" class="account-settings">
+        {{ token() }}<input type="hidden" name="action" value="update"><input type="hidden" name="uid" value="{{ r.id }}">
+        <label>Роль<select name="role" aria-label="Роль {{ r.login }}" {% if r.role!='RAG_ADMIN' %}required{% endif %}>
+          {% if r.role=='RAG_ADMIN' %}<option value="" selected>Оставить текущую роль</option>{% endif %}
+          {% for key,label in roles.items() if key!='RAG_ADMIN' %}<option value="{{ key }}" {% if r.role==key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select></label>
+        <label class="check account-active"><input type="checkbox" name="active" value="1" {% if r.active %}checked{% endif %}>Доступ разрешён</label>
+        <button class="secondary">Сохранить</button>
+      </form>
+      {% endif %}
+      <div class="account-actions">
+        <a class="account-history-link" href="/users/history?user_id={{ r.id }}">История запросов</a>
+        {% if r.id!=user.id %}
+          {% if r.active %}
+          <details class="account-action">
+            <summary>Сбросить пароль</summary>
+            <form method="post" action="{{ url_for('reset_password',uid=r.id) }}" class="account-confirmation">
+              {{ token() }}
+              <p class="small muted">Проверьте личность пользователя. Старый пароль и открытые сеансы будут отменены.</p>
+              <label class="check"><input type="checkbox" required>Подтверждаю сброс пароля</label>
+              <button class="secondary">Выдать временный пароль</button>
+            </form>
+          </details>
+          {% endif %}
+          <details class="account-action account-delete">
+            <summary>Удалить пользователя</summary>
+            <form method="post" action="/users/{{ r.id }}/delete" class="account-confirmation">
+              {{ token() }}
+              <p class="small">Пользователь потеряет доступ к системе. История его запросов и журнал действий сохранятся.</p>
+              <label class="check"><input type="checkbox" name="confirm" value="yes" required>Подтверждаю удаление учётной записи</label>
+              <button class="danger">Удалить пользователя</button>
+            </form>
+          </details>
+        {% endif %}
+      </div>
+    </article>
+  {% else %}<p class="muted">Учётных записей пока нет.</p>{% endfor %}
+  </div>
+</section>

@@ -10,8 +10,9 @@ from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "intfloat/multilingual-e5-small"
 
-INDEX_FILE = Path("index/faiss_pdf.index")
-METADATA_FILE = Path("index/metadata_pdf.json")
+ROOT = Path(__file__).resolve().parents[1]
+INDEX_FILE = ROOT / "index/faiss_pdf.index"
+METADATA_FILE = ROOT / "index/metadata_pdf.json"
 
 TOP_K_FAISS = 10
 TOP_K_BM25 = 10
@@ -65,7 +66,7 @@ def build_bm25(metadata):
         ])
 
         corpus.append(
-            tokenize(searchable_text)
+            tokenize(searchable_text) or ["__empty_document__"]
         )
 
     return BM25Okapi(corpus)

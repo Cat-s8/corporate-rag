@@ -8,10 +8,11 @@ from sentence_transformers import SentenceTransformer
 
 MODEL_NAME = "intfloat/multilingual-e5-small"
 
-CHUNKS_FILE = Path("data/processed/chunks_pdf.json")
+ROOT = Path(__file__).resolve().parents[1]
+CHUNKS_FILE = ROOT / "data/processed/chunks_pdf.json"
 
-INDEX_FILE = Path("index/faiss_pdf.index")
-METADATA_FILE = Path("index/metadata_pdf.json")
+INDEX_FILE = ROOT / "index/faiss_pdf.index"
+METADATA_FILE = ROOT / "index/metadata_pdf.json"
 
 
 def load_chunks():

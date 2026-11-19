@@ -1,0 +1,10 @@
+<details class="delete-document">
+  <summary class="danger">Удалить</summary>
+  <form action="{{ url_for('delete',did=r.id) }}" method="post">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p class="small">Удалить «{{ r.title }}» из базы знаний?</p>
+    <label class="check small"><input type="checkbox" required>Подтверждаю удаление</label>
+    <button class="danger" type="submit">Удалить документ</button>
+    <button class="secondary" type="button" data-cancel-delete>Отмена</button>
+  </form>
+</details>
